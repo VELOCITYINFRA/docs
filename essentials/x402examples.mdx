@@ -1,0 +1,203 @@
+## x401 use cases 
+
+
+> Sample Use Cases
+
+``` Devs need to monetize an API ```
+
+> Register Endpoint with Velocity
+
+## Usage 
+
+### AI Image generator API 
+
+```js
+
+"use client";
+import { useState } from 'react';
+import FetchVelocity from "velocitysdk";
+import { createX402Client } from "x402-solana";
+import { useWallet } from "@solana/wallet-adapter-react";
+
+export default function AIImageGenerator() {
+    const { publicKey, signTransaction, connected } = useWallet();
+    const [prompt, setPrompt] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const generateImage = async () => {
+        if (!connected) {
+            alert("Please connect your wallet");
+            return;
+        }
+
+        setLoading(true);
+
+        const wallet = {
+            publicKey,
+            signTransaction,
+            address: publicKey.toBase58(),
+        }
+
+        const client = createX402Client({
+            wallet,
+            network: 'solana',
+            maxPaymentAmount: BigInt(100_000), // 0.0001 SOL per generation ,set by the client on velocity platform
+        });
+
+        let fetchvelocityconfig_post = {
+            x402client: client,
+            dev_address: "DEV_WALLET_ADDRESS_HERE",
+            tag: "generate_image",// set by the client on velocity platform
+            method: "POST",
+            body: { "prompt": prompt }
+        }
+
+        try {
+            const result = await FetchVelocity(fetchvelocityconfig_post);
+            const response = await result.json();
+            console.log(response);
+            setImageUrl(response.image_url);
+            alert("Image generated! Payment processed.");
+        } catch (error) {
+            alert("Generation failed: " + error.message);
+        }
+
+        setLoading(false);
+    }
+
+    return (
+        <div className="items-center justify-center p-20" style={{ background: '', minHeight: '90vh' }}>
+            <div className="bg-gray-900/95 p-6 rounded-xl shadow-[0_0_40px_rgba(124,58,237,0.9)] max-w-2xl border border-purple-700/70">
+                <h2 className="text-2xl font-bold text-white tracking-wide mb-4">
+                    AI Image Generator
+                </h2>
+                <p className="text-gray-400 mb-4">0.0001 SOL per image</p>
+
+                <input
+                    type="text"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Enter your prompt..."
+                    className="w-full p-3 rounded-lg bg-gray-800 text-white border border-purple-500/50 mb-4"
+                />
+
+                <button
+                    onClick={generateImage}
+                    disabled={loading || !connected}
+                    className="px-10 py-3 text-lg font-bold uppercase tracking-widest rounded-lg transition duration-300 ease-in-out bg-white/10 backdrop-blur-md border border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.7)] hover:bg-white/20 hover:border-fuchsia-500/70 transform hover:scale-[1.02] disabled:opacity-50"
+                >
+                    {loading ? "Generating..." : "Generate Image"}
+                </button>
+
+                {imageUrl && (
+                    <div className="mt-6">
+                        <img src={imageUrl} alt="Generated" className="w-full rounded-lg" />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+
+```
+
+### Premium data analytics API
+
+```js
+
+"use client";
+import { useState } from 'react';
+import FetchVelocity from "velocitysdk";
+import { createX402Client } from "x402-solana";
+import { useWallet } from "@solana/wallet-adapter-react";
+
+export default function DataAnalytics() {
+    const { publicKey, signTransaction, connected } = useWallet();
+    const [tokenAddress, setTokenAddress] = useState("");
+    const [analyticsData, setAnalyticsData] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const fetchAnalytics = async () => {
+        if (!connected) {
+            alert("Please connect your wallet");
+            return;
+        }
+
+        setLoading(true);
+
+        const wallet = {
+            publicKey,
+            signTransaction,
+            address: publicKey.toBase58(),
+        }
+
+        const client = createX402Client({
+            wallet,
+            network: 'solana',
+            maxPaymentAmount: BigInt(500_000), // 0.0005 SOL per  query , set by the client on velocity platform
+        });
+
+        let fetchvelocityconfig_post = {
+            x402client: client,
+            dev_address: "DEV_WALLET_ADDRESS_HERE",
+            tag: "token-analytics", //set by the dev on velocity platform
+            method: "POST",
+            body: { "token_address": tokenAddress }
+        }
+
+        try {
+            const result = await FetchVelocity(fetchvelocityconfig_post);
+            const response = await result.json();
+            console.log(response);
+            setAnalyticsData(response);
+            alert("Analytics fetched! Payment processed.");
+        } catch (error) {
+            alert("Fetch failed: " + error.message);
+        }
+
+        setLoading(false);
+    }
+
+    return (
+        <div className="items-center justify-center p-20" style={{ background: '', minHeight: '90vh' }}>
+            <div className="bg-gray-900/95 p-6 rounded-xl shadow-[0_0_40px_rgba(124,58,237,0.9)] max-w-2xl border border-purple-700/70">
+                <h2 className="text-2xl font-bold text-white tracking-wide mb-4">
+                    Token Analytics API
+                </h2>
+                <p className="text-gray-400 mb-4">0.0005 SOL per query</p>
+
+                <input
+                    type="text"
+                    value={tokenAddress}
+                    onChange={(e) => setTokenAddress(e.target.value)}
+                    placeholder="Enter token address..."
+                    className="w-full p-3 rounded-lg bg-gray-800 text-white border border-purple-500/50 mb-4"
+                />
+
+                <button
+                    onClick={fetchAnalytics}
+                    disabled={loading || !connected}
+                    className="px-10 py-3 text-lg font-bold uppercase tracking-widest rounded-lg transition duration-300 ease-in-out bg-white/10 backdrop-blur-md border border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.7)] hover:bg-white/20 hover:border-fuchsia-500/70 transform hover:scale-[1.02] disabled:opacity-50"
+                >
+                    {loading ? "Fetching..." : "Get Analytics"}
+                </button>
+
+                {analyticsData && (
+                    <div className="mt-6 bg-gray-800 p-4 rounded-lg">
+                        <h3 className="text-white font-bold mb-2">Results:</h3>
+                        <pre className="text-gray-300 text-sm overflow-auto">
+                            {JSON.stringify(analyticsData, null, 2)}
+                        </pre>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+
+
+
+```

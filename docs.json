@@ -48,6 +48,38 @@
 
        
         ]
+      },
+
+      {
+        "tab":"Examples",
+        "groups":[
+
+
+            {
+            "group": "x401",
+            "pages": [
+              "essentials/x401examples"
+            ]
+          },
+
+            {
+            "group": "x402",
+            "pages": [
+              "essentials/x402examples"
+            ]
+          },
+
+           {
+            "group": "MCP",
+            "pages": [
+              "essentials/mcpexamples"
+            ]
+          }
+
+
+
+
+        ]
       }
     
     ],

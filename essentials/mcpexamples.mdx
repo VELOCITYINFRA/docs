@@ -1,0 +1,78 @@
+## MCP use cases
+
+
+#  Claude Agent Fetching User Analytics
+```js
+
+import { connect } from "@anthropic-ai/mcp-sdk";
+
+// Connect to Velocity MCP Server
+const mcp = await connect({
+  server: "https://velocitymcp.dev/mcp",
+});
+
+// List all available tools from registered endpoints
+const tools = await mcp.listTools();
+console.log("Available tools:", tools);
+
+// Agent fetches user analytics data (GET endpoint)
+const analyticsResponse = await mcp.invoke("get-data-from-resource-server_by_get_method", {
+    ownerwallet: "DEVELOPER_WALLET_ADDRESS",
+    endpoint: "/api/user-analytics",
+    privateKey: "AGENT_WALLET_PRIVATE_KEY"
+});
+
+console.log("User Analytics:", analyticsResponse);
+
+// Claude can now use this data to answer questions like:
+// "How many active users do we have this month?"
+// "What's the average session duration?
+
+```
+
+# Autonomous Trading Agent
+
+
+```js
+
+import { connect } from "@anthropic-ai/mcp-sdk";
+
+const mcp = await connect({
+  server: "https://velocitymcp.dev/mcp",
+});
+
+const tools = await mcp.listTools();
+console.log("Available trading tools:", tools);
+
+// ENSURE AGENT HAS ASSOCIATED TOKEN ACCOUNT FOR USDC ON SOLANA
+
+// Agent fetches market signals (GET)
+const signalsResponse = await mcp.invoke("get-data-from-resource-server_by_get_method", {
+    ownerwallet: "TRADING_API_OWNER_WALLET",
+    endpoint: "/api/signals",
+    privateKey: "TRADING_AGENT_PRIVATE_KEY"
+});
+
+console.log("Market Signals:", signalsResponse);
+
+// Agent executes trade based on signals (POST)
+const tradeResponse = await mcp.invoke("get-data-from-resource-server_by_post_method", {
+    ownerwallet: "TRADING_API_OWNER_WALLET",
+    endpoint: "/api",
+    privateKey: "TRADING_AGENT_PRIVATE_KEY",
+    body: {
+        "action": "BUY",
+        "pair": "SOL/USDC",
+        "amount": "100"
+    },
+    tag: "execute-trade"
+});
+
+console.log("Trade Result:", tradeResponse);
+
+// Agent can autonomously:
+// - Monitor market conditions
+// - Execute trades based on signals
+// - Report performance back to user
+
+```
